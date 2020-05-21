@@ -1,0 +1,63 @@
+import requests
+import progressbar
+
+urls = [
+	# give your url strings here
+	"https://cloud.frontendmasters.com/savage-a/2020/02/14/webm/1080/19.webm?Expires=1590042168&Signature=XnrdIODnpeI-bDfbuhd4zlxHZt~bgzGARBkXDkxJ8Gfai0xNqe-hKu4jdiKKULmCfBQrNfCCltXIzt61-gb197Ogmhnbbn5GSVtaJXdrrHgVS52tQAzCP319KfjT1ATilOAv4~RcGrirOLrM1mrsAlRPp2NhpgKz4Hl5P~C7fcNihQdb6Qtcfm2BorgiidiDCwjt83UKY0iCWZp6ZaRl0VGWLokop12FkadwKMJwLzMlDOco8lRSlwv~Y39s6JL2c~Gt59PlrEw8s7terVkxR8u0AtPYGXOLUNdX5uE5TKxvjDnviBkM~Nw1i3zYgI~CrBKUB5jAvSHtyp8y8paB-g__&Key-Pair-Id=APKAJWB4SBTOPQN6G6BQ",
+	"https://cloud.frontendmasters.com/savage-a/2020/02/14/webm/1080/20.webm?Expires=1590042196&Signature=ImGlH7dyvAkxjLi3V1hGZ~ajCG7V3PBJsqpax9NCBxuNkqMmURDScYf52fQvjNDXFvTJVvMT7BANSWFC-lDNe2SHHtQLxsO41cZoeohbtQOgib6dIBoOX7PxEuImNlmTC5JzDKW40agkHV-SPl0K2cIAJbzTiJmzPNZ4cQTAMVnokVdM-5hKTOxVbS5yeIXS7ZzdWUhVNWpfGMWmb5UY4H1rQZARGSco8wKhF42VRNmyfucQzUTUJEaH9K4~clK8os1gZ~BjD~Q9GZt-U4F2gku--BmMuvTDdCGHu7iU~~ZuEECwk8odXLF1e57HDJzCk3WFPObOCg2ZzKZwBKfYmA__&Key-Pair-Id=APKAJWB4SBTOPQN6G6BQ",
+	"https://cloud.frontendmasters.com/savage-a/2020/02/14/webm/1080/21.webm?Expires=1590042214&Signature=loeJdNtoWny6m9SJuMnmLHBbt47wF3q0mSW6-wGYT2D5vPnptl4cXiHbirszVAAcZdJHMg~hmwT-wfHO-ohurTAQJwhHxRSfbUhQTlLWtmNPjkMqoimOHYRphtSYqS38i9IQwSZzgG4huMuGeFirc7enD5kFJG37uV9OnjYqIhDku~tmblH-~d5Zvv1QXZ4JFrM6CpmFAFmwvHJ4dLsERbp9y8lGfimwrA8flLgjjSAvS3dwRbSAq20kxSc4zkaLuPfSvzFLSPDHt4kbD4oI5A8WEuNVNocDBrUd5OKhPAagVR6odg-nrFUHvXFzZxkD57IJuZiwkn6aG9fZrtBBsA__&Key-Pair-Id=APKAJWB4SBTOPQN6G6BQ",
+	"https://cloud.frontendmasters.com/savage-a/2020/02/14/webm/1080/22.webm?Expires=1590042222&Signature=CUZmVq3JXx9cEcB0zAN8no9v3OejVRZbyo6yuNp8S5sTvi8ELLkRsYlUJTKgmmaZKZpuP6eGV9uRjQFyJ43PRCXTVWjlUB1TeEeU9Lhir3LlvlrWGhFvrnHVaP5MKAkGuv9VHGdQI6Fr6eNBofck6P~XiIfbMEZWd~-9~mh8MMpQR8e01XlnR41JoBxPwBh~0ZFiRSwUTPJZTi8tA5C0NWQ47Hzf3ZS4eA80abZPk6S5DSc2iuCfgcV5IefD2aIghlrb5hQacDT-lkgnJeDF~4nBZ-Vl--8cx0ySyAJG-FTmVUxWvCoaZHeNBc8Ra-q9nxoF-4dHg-JzjtPHhKVkvA__&Key-Pair-Id=APKAJWB4SBTOPQN6G6BQ",
+	"https://cloud.frontendmasters.com/savage-a/2020/02/14/webm/1080/23.webm?Expires=1590042229&Signature=nv1S86fX3TNozLamE~eWp2TUwz5ESi7l6ukLKvB3BCX6oEmXV~sSFimcpdqPfIWKXQKkvoaRfWMZLiBxqfKSK4v5HisDsyPQ1zTunqDmEf46B6aFvD70RZ4Y6XgXrCT9SaLbuMlYJrK0v63Zz1D99h0Wjt5aaxckpMs3DRUaCcWzhTt8NQJJnw5Lf75vD5j-pl1M1MREBHQ9W5wcL5iHtHKPllfbxR0GrAdkuSgrgvuydNkEEx8-siChCtjrQeEXDpAL9yel71mc7-5fbWg3SiAWwtCWY0FeKWt1NLLKWSYZsc5Q3sgxJcCZk2lmEwLdVagmIcipq6REusR8uhEqzg__&Key-Pair-Id=APKAJWB4SBTOPQN6G6BQ",
+	"https://cloud.frontendmasters.com/savage-a/2020/02/14/webm/1080/24.webm?Expires=1590042242&Signature=UeMR7I012lrd60ma9CtVIitR6zCsY~GimPLEe9Fi~PpOeY4FFsHITc8fU8LfZR7M6v2B6qWxIxC8jDY9oPu1ChEBpiUo43swCxztETkJq-1p42ndlg6QK47Kj5hQaXcO1buq~TY0TjIV~h-bxIZvy30kvT~C3wQ~swAhJ3wCzH3gD4kkuibYEu4AdMkTNQNjLJhz38RfAfzmUcnVpPD0NsV3wMUGVthrB6~RZLZa~2FZFszXn2JvodnapACzK8uWppDS30kkJuc10X1RFbPd7epoE7WxmjG2s7885ZDf8ZjbpDzEhguB2UQ~ACgPQ8u3dEMSXVbMHVANVtzJi78-BQ__&Key-Pair-Id=APKAJWB4SBTOPQN6G6BQ",
+	"https://cloud.frontendmasters.com/savage-a/2020/02/14/webm/1080/25.webm?Expires=1590042254&Signature=OChb3sbCwMZbks1MX6FWRO3h5edUhsMCV9dktxI2WzBnsUXAY30GIJ7CcRbO4cy~ZfPwKYDqdBSte~cOMr98Bpmvf4J6~SxO87Qxu3l3ZrmJV~3MlAT2gx92V3XxGxSbHsTx-TgAbJINg6pIpNPFJzk94Dbo1If4bJeTmcIN-ptq-7-~nNy4a~iB1vuOKLV9jtbGVKlK5jpvgc7gnW5nVHzASsDYvN2fWUmYcNxkrOHcmK-P-8XUqUicJOBtWv3eXlSedU9GWkyQzcFZE1~3bC1gveSoOmFN5w6xBq4EU27KjYQQzDd0MU2hM5ZUZD1j97UH7snXB4CsoJryh8ZFAA__&Key-Pair-Id=APKAJWB4SBTOPQN6G6BQ",
+	"https://cloud.frontendmasters.com/savage-a/2020/02/14/webm/1080/26.webm?Expires=1590042261&Signature=CuvqUBOhappJW~W~GPP1gJvYAZq14yXdD13bC~D-iSweWueICXMApxgbLGkXCSBtDEZ5a~4354WRV67sH7fByD3NO9u0wUSlzqz2lcyFqqjI3cWu3xj8scvxZYgf1Th-KE0V1XpnOCBGf4i0jH4kFWC0AzGBdrRujBPxClm78HZ0DxuWWEBIL0Pge48XubX7nXt9oOMKfFNI6pBkWqiiAFrXQxFdh3TRz0EUGoSXBcbGAyjqiVTpYECsXVNpTYdZSElaS9hsJoqEIkPXNILBkBp9bQMb5FqwM9jQFguHQaucjKicelEXSuOUZp8aJ5ij3tNG0wvp18h9G3bppTbOEQ__&Key-Pair-Id=APKAJWB4SBTOPQN6G6BQ",
+	"https://cloud.frontendmasters.com/savage-a/2020/02/14/webm/1080/27.webm?Expires=1590042270&Signature=ntgMK30ouvxtiAgxeZS-7kDP2Xf7~-rQn~i~fq~R80MjuT0ck9CKFaY~F7MwaYgdhvzAKLpE6o9r0Cusgi~s1Jnihhdq3PUnYDdhUXBlZzTIWmKBysJJN8vkJKW976~ioGmtZnOnRExztBwhSu95dbNA1Q~WE3qFsaRc0DqcrnQmhLYRVocJuQAxnCI8ow61TP2JjJaryIShHM960L1nspxK1hlSxl--7aPql~JwVVsOukBjTMKrtu2jtJH7NQwxGTer-i4tyqEvKLUGjC7pewQCM~MU7OqM-AxXn-mqWc~ZoDvCGyuNI1G07Fq9JqDjjEe9Q9pk6nwCryGOFFSu-A__&Key-Pair-Id=APKAJWB4SBTOPQN6G6BQ",
+	"https://cloud.frontendmasters.com/savage-a/2020/02/14/webm/1080/28.webm?Expires=1590042275&Signature=bJQZrLM4WNLjO25cRH0a50MbXlO8VA-dsTp1007wd8y6n32dkuCgISwzAm9LE-e02fBE-THWTzFjLWkPdSNjx09NuqvwmcY-KIRdLowLttYT8Q~tyQnv4WGh8KnRtSxYUolyAJSJpH8aYImjyEml-eTjER0DCiRcunTC7SMyZtl~z~vaiFz8N0qr5vRY5fe0elLDvl3wD4~EB8oCqAkOxBT~JFTqYRSGzFnu~aRGijgfD2Tg8Pk763I5w-RJwFI25velD9dZ5PlEobGydcQlIvebmRD1H5~JcrOHHUw90YlTqffji~YvY5zuF1YWbuKTdYHVxRmAg0c~WQh15tdyVw__&Key-Pair-Id=APKAJWB4SBTOPQN6G6BQ",
+	"https://cloud.frontendmasters.com/savage-a/2020/02/14/webm/1080/29.webm?Expires=1590042281&Signature=SNksDyBfFvRMJ6vHogORa-SaEVBNxMGejgRwx1pFMRr-rk~zKmuznIzc-GoacOJuqUDZcMiN4Dp7t09vBmEr-iMxLg-ZLafMH929Ykon7LIHBorhN-eV2tXdd96wDu~gcAZ57ZKXrNKB2unf2zsGIg3pETSgUEo4wmIXXi~xIGb~Gp8h14IwrWXRaTuayZO5CRPHWkvFVYI2-KQOCEr5WCDQ5hrH61BbXpHp7xM-Zckh0PY5KxSN~5BjkXDHokDoyHFONTwcmuzCYiOYtByPS-dNPI2eBi3M1Yc~MerI04WwgokaH7Su8EOQW7xBzL~snDdHBbsvRaE8Rkgf353qOg__&Key-Pair-Id=APKAJWB4SBTOPQN6G6BQ",
+	"https://cloud.frontendmasters.com/savage-a/2020/02/14/webm/1080/30.webm?Expires=1590042285&Signature=GxwzEO0CUWYGYoj88atnKVzc14PdSmd1-SM6DQRotxHu~Q-NpiixRb3CGlCPsACiYY9ZpPVYy7YU9gCFn0hPhNX9LSIFIfllzp7E5XQKCW15b91V-fDBGeRuTYvQXQCpsRAF2egh3CBvx7PGDQBPcrqYEqa-W-ygkQNoS04ug~Z0wc5h~PUmC3qMTSyyVDoZuTEGFFb98wx2ERwL7pC3d~N3-iRTypYzzP~gs8w85UEigbFrBfPcmAa-sbguqsQWQ9pzVSHqnsODNKNY5483ZvhzGrwY1065skZk0fNtYEeRQtVfHV2nFrrQPgOSGHzZU~MSwVGDMhEsfvTcOoZonA__&Key-Pair-Id=APKAJWB4SBTOPQN6G6BQ",
+	"https://cloud.frontendmasters.com/savage-a/2020/02/14/webm/1080/31.webm?Expires=1590042297&Signature=oUOpDKyLOZj3ts3QE--brdS19F-t-qnH47BpWof-wrBcCaQ~KgFFQ8vrTDNVsJelzdLVYy5UvkwIz4IhE7QgPybDT3rXOzGKBF-shO19MoX2ks2~Gq0Ne91ubQ0G5ke5yYXzLcn6FhKCnnD5yqIwtXBYgrVvhnQb8jEGMQ9b0PHZgkEQAzZHvsjBYr6f5Es9BDSCeCdf3GoR7ojc9ow5ABRRhI87qfVUNk4PlC1K9rMDnpzp806NJn96v3ZT0MkAte25-0VCJJiQZ~5HRERX73AAV0FnfT4roMKHJz-eOlkMaDzIaGYpZTF70AhUZIMrtmGvhRJwxQvHsQ~YqgNbjQ__&Key-Pair-Id=APKAJWB4SBTOPQN6G6BQ",
+	"https://cloud.frontendmasters.com/savage-a/2020/02/14/webm/1080/32.webm?Expires=1590042303&Signature=GgKS~4ZXzTXelflpjNGR4ihroxsD5BCiXsVCeqGA5ZDwGDFNYxj2nkQ3sqS9E6RUCTmjf0lVlaVjxkeZd2vHEXViQ6HZ3iEFuypL-F64rwd5yjhMfPLCtboSw3wNrEOJVZNxYPXYEzJdgBZzoMbPfjkb7ZK4eAeyYd3GQzfeCHBakgFAeMEEZrk3GJySVij9DR8Qm~4YPUxj9OKqOwN2gn5-NN0SESCItYrKxba~FDwz7rE8uu1rg7KN5gR8z0s1Srwqoru5TXyjr0A8Vit-Z65wPnMiPSxu6lAvsK~mf9wjeZeCscwwr0lBmVBwB4d1NdQHRygmF-DqVsQjsclaAw__&Key-Pair-Id=APKAJWB4SBTOPQN6G6BQ",
+	"https://cloud.frontendmasters.com/savage-a/2020/02/14/webm/1080/33.webm?Expires=1590042311&Signature=c9frkdlg8QWoqEyiG8wji3FgFztKeqTozvcHSSTBYrW5cWGJYmNQf~AjlfOnfu419hf~cAVzgK0bhxuQ7MZzO-c5YN3MRkzTRDuQhNS8PzzQwoQkyb9A65XvJ9R~eXOO6jLzXXN-yf8LsKrKnDBuR962Ud8gx-GOi~~DamCvc8wYZf~jtLUNMukCcMnu5SWoTe9Tl~2RqEeG7GMJ8v2WeJsCE0bUc-StdB8ZKXNwIFP95BpDOPXVSoRQuL7CrI5QUehwl8LM3ZppP5PuCcW5udXu8ILBZiIqO0w8xptXbb5jO7c1cpWWRmrUvxSb4jv8hIIEGaPXU2~tUolKobyi6g__&Key-Pair-Id=APKAJWB4SBTOPQN6G6BQ",
+	"https://cloud.frontendmasters.com/savage-a/2020/02/14/webm/1080/34.webm?Expires=1590042317&Signature=gzJJ0Tbvwd~YTx1no~DrQeM~SpZR4XYPsVu8mBl9FySOpZhJ3ZrH3kP5aRvwNLSBCfRz9wk57gapQa4pRyLyynqCLemB7BhFpEajCNN2dB0CnDCIihdY9jpnD4yJdsXDogZQtX0GgcmlqzE83si1BG38d~pQEhVcN~8ZbLuBKhH-kgs4YJwVDW9pP08ijoNXTVkRTDvXbA2OUDqGIcmpTJCabHsCM0YlUa4sRnk00w8S82jKPdszrxSyy4TJp9Kbm-zTHqgtzqsvBqJXz3MsAqOC-8nOhowDzQcuUFfI9luaPDHQXHrpRYXj1XRPBq4X4HEHejJOPBUL0qrDU3y~dA__&Key-Pair-Id=APKAJWB4SBTOPQN6G6BQ",
+	"https://cloud.frontendmasters.com/savage-a/2020/02/14/webm/1080/35.webm?Expires=1590042323&Signature=irrhqOatGFRu-C26AoLXFr4PwqbnSF9NK5V95vyDOKjiz7XuTkOvE8korPIgtU1Dz2NaolvuJsX8k~R96cLPdD1fOWg1K-jAC6oHa5Xom~7YJ2i9kps66vyEigGH8Ybo9zYjhWe4fE1GBgbwLryqUH2-OgyPO2XFEoEwYjYkSgT5rWSqTdOrfwa-3Mp7nBSu5zFOPss25rT4nEPZ0ruD5OHzIZNFeWvomVjtRC5emYirSUUY7k~kXDLYzfF2SYRwsrST~E-LbAAYuMOvOs79kACxJyfmDzps~IB3ch9~nvcbi2O9kjGO26a1UQXrSGN7KJRHYHGWSZXQKsJgIaFf9g__&Key-Pair-Id=APKAJWB4SBTOPQN6G6BQ",
+	"https://cloud.frontendmasters.com/savage-a/2020/02/14/webm/1080/36.webm?Expires=1590042330&Signature=HreBe3kWthNgvZk5cBS-zRf1ufjU12BhW0Ikz-p55HSOhFsaJjm89Ri0fOgLQRoGm4-TWXBKFYPzmpTB-oS9YNxToXjW1jbxLTD2bxL4vRF2GICbmEIXR76tag3fGYsBP8yuZrU-Y4wmeMu3b3H2aMSgBJ6lrqAqBOVxmXJx6mn46V8eitqNAQz4q2iVeeNZMbNJ-qSAvifQWb5I8B0VTvs5ESHwKPPRbfarhirlD8y8sEASvO4Doeii9EJVemNmbZ5Dq6lHR-OutZsg4kg5i~EVMqCLGipDrv93bDUB2Iy55nOj2VEhRxM4yUdqCt~FDjZq3ELjFjJnXNS02q48ng__&Key-Pair-Id=APKAJWB4SBTOPQN6G6BQ",
+	"https://cloud.frontendmasters.com/savage-a/2020/02/14/webm/1080/37.webm?Expires=1590042336&Signature=FgF3BtVO8k05JFu-SU8xX5bMLq8SfCtjC~MF~jD2MMn7J2o5LySzhhFOyQzG9euJjRYm7wnD~ZWf53BAXBJfwMDcmw1MUZYIvgtWrxaVJ63hy0WbCaabchRyu4ClUuesXI9jF-tnyUaerulAyWOqUuV~eZrMeTglHBD738ULABO9Ze1Fm-pmIaHx52PeqC3-z1BLCyjAsTVpH6TGw5AjR1GMKWmBU134-lx-D4eM9sVGccCIBSSkavEdyLc6KuUYXrxxNIbwdSIGRQR3MsZr5SFSVBznWvN~iutycOdY0NAdZX5J2IeaFmg1QGAfPlOzr6dbi4rm2vs6V9C7H2BECA__&Key-Pair-Id=APKAJWB4SBTOPQN6G6BQ",
+	"https://cloud.frontendmasters.com/savage-a/2020/02/14/webm/1080/38.webm?Expires=1590042342&Signature=gWSe-YF4SFM4liOLUzI~f2uI7nw608EejtWZKYt~fzFPVAmW6fJjKYaUjlbvZApdE52TcbM6Ow1LZgUFfqR1bu-jExYhm3F~N7RAvjMqfHHi-jQpBfjaIE18qmR63FTnMoS6smf1GV1ljc9Ghy3pyx4grPBFsY4FUOy~UgdcyFueWGkyhmOwk1yK0mkhgKWuwaTJrgxzkoZ~3jUUrtZvoNq1Srp4~nSu78Ze9R56MsBr0A6Vp0zAIGQMxqgnwWIi1UWk3XVwJOLHqtB5tYbstaq3j5dKkh6QHomJPfWrT6rRms7PqrU31r3uQLDmLj3Z6zWE-ffKBZLsoJ8lvo1huQ__&Key-Pair-Id=APKAJWB4SBTOPQN6G6BQ",
+	"https://cloud.frontendmasters.com/savage-a/2020/02/14/webm/1080/39.webm?Expires=1590042348&Signature=I5XKlADIwSgz7ri8C6T5yxlUxqsfjh4mSiYKsltgGZD5Cz02NRZD3IjFZHhQMLAD5MJinhQHrRdAyOWbouyNBL3AcNN2ntNhb4cPRpZ7WutC6bxxbqcFygd5B6jrtmv6a2Rg0~0msR4oGAC~5GUXOWuguS4RXFe39g3Lf87QdP3BxLZwTjfiYkRO9j76o64iAaR8OVJfHJejIDt2fDEyY9mtq323nV1muWiymxoQ9zO927VK2XGJPoT58pN~PHYvrMuALO5lbnqKj2B8s-OlLl1mujGCh50T6o8HpWuNITp9fL1uHm5cOulLlzBxH7078UEXHYdfXcyxxMbv4sWFjA__&Key-Pair-Id=APKAJWB4SBTOPQN6G6BQ",
+	"https://cloud.frontendmasters.com/savage-a/2020/02/14/webm/1080/40.webm?Expires=1590042361&Signature=PyStsOygQUxShC4MnIkf99-ebA-ECi5cgviNplsk54z2EeNaNKXaOgezBRB~lsdU5HSfSrv4SRh5go0HCvPQIr2FAsUS05enQl7bfStGR-~santLs9TIagopvdNk71zKaZY2f3NdiMkcBJwTQDpzMRuv4coUyFGTVj386jlXDqRost2zMwX7areOao8chNBBs~9ex~i4IuXjVaFbGdsDu~qRs-1UKmAdyuSr-9RQxiyTBhy3Nutox3kgWUG3HqctxV80x1PgJ9Fk98vYMY~msIQ5zbbO-eGX3URV3NoJN4U544Q26XwNqsgcQIuvypkNIDdTh3QF-GgDgtis5wHXHQ__&Key-Pair-Id=APKAJWB4SBTOPQN6G6BQ",
+	"https://cloud.frontendmasters.com/savage-a/2020/02/14/webm/1080/41.webm?Expires=1590042369&Signature=Cj4wLrqyckeXWqe6RG2t2kDH8NgUgCXTnjblqhaKLyw~zNnhEvWWsu~4KadLWK~rtqsk3DiRPXYw7-S4g03R1yW3wTXk2wUI7In-DC~Ero2xPvxrlUZSyl48Eh~j6keQLixz-mmTSV0kxxqBKZKFLYgxdct20edwXl0EUceiAw3TvxCKv2LcmG-c75t2eVk1gepjNxiPG-DXwopvX5bL5AyXkOaWIM3ilYb-WxoE0RcBppv~LHrSKe0SEy97q6MreyuAOrADZCebXaUNDjTEKE7ZXqpRj8jyFn2A-sYAAyTuhL63GmFmAMuomhI2926gryI6yRZPWAUVsyauXTNd0g__&Key-Pair-Id=APKAJWB4SBTOPQN6G6BQ",
+	]
+
+for url in urls:
+	fileName = url.split('?')[0].split('//')[1].replace('/', '_')
+	print(fileName+' ----------- Started')
+
+	response = requests.get(url, stream=True)
+	contentLen = int(response.headers.get('Content-Length'))/1000000
+
+
+	print(contentLen)
+	print('Downloading ---- ')
+
+
+	c = 1
+	downloaded = 0
+	downloadedFile = ''
+
+
+	bar = progressbar.ProgressBar(maxval=contentLen, \
+	widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
+	bar.start()
+
+
+	for chunk in response.iter_content(chunk_size = 256):
+		downloaded = 256*c
+		bar.update(int(downloaded/1000000))
+		c = c+1
+		downloadedFile= downloadedFile+chunk
+	bar.finish()
+
+
+	with open(fileName, 'wb') as f:
+		f.write(downloadedFile)
+		print(fileName+' ----------- Finished')
